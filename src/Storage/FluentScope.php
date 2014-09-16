@@ -64,15 +64,16 @@ class FluentScope extends FluentAdapter implements ScopeInterface
      */
     public function get($scope, $grantType = null)
     {
-         $query = $this->getConnection()->table('oauth_scopes')
+        $query = $this->getConnection()->table('oauth_scopes')
                     ->select('oauth_scopes.id as id', 'oauth_scopes.description as description')
                     ->where('oauth_scopes.id', $scope);
 
-        // TODO: allow for client scopes limiting
-        /*if ($this->limitClientsToScopes === true and ! is_null($clientId)) {
+        // not a good solution! waiting for https://github.com/thephpleague/oauth2-server/issues/213
+        $clientId = $this->server->getRequest()->request->get('client_id', null);
+        if ($this->limitClientsToScopes === true and ! is_null($clientId)) {
             $query = $query->join('oauth_client_scopes', 'oauth_scopes.id', '=', 'oauth_client_scopes.scope_id')
                            ->where('oauth_client_scopes.client_id', $clientId);
-        }*/
+        }
 
         if ($this->limitScopesToGrants === true and ! is_null($grantType)) {
             $query = $query->join('oauth_grant_scopes', 'oauth_scopes.id', '=', 'oauth_grant_scopes.scope_id')
